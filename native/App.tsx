@@ -1,13 +1,14 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import Routes from './src/screens/routes';
+import TelaCadastro from './src/screens/pages/SignIn';
 
 
 const App = () => {
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <TelaCadastro></TelaCadastro>
     </View>
   );
 };

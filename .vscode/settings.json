@@ -1,5 +1,5 @@
 {
-  "editor.indentSize": "2",
+  "editor.indentSize": 2,
   "editor.autoIndent": "full",
   "editor.detectIndentation": false,
   "editor.codeActionsOnSave": {
