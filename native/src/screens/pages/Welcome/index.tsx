@@ -1,22 +1,22 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
 
 export default function Welcome() {
-  const navigation = useNavigation();
+    const navigate = useNavigation()
 
   return (
-    <SafeAreaView style={estilos.container}>
+    <View style={estilos.container}>
       <Text style={estilos.titulo}>
         <Text style={estilos.tituloNegrito}>Smart </Text>
         <Text style={estilos.tituloAzul}>HEALTH</Text>
       </Text>
 
-      <Text style={estilos.label}>e-mail</Text>
+      <Text style={estilos.label}>E-mail</Text>
       <TextInput
         style={estilos.campoInput}
-        placeholder="Meu E-mail@gmail.com"
+        placeholder="email@provider.xxx"
         keyboardType="email-address"
         autoCapitalize="none"
         placeholderTextColor="#999"
@@ -25,7 +25,7 @@ export default function Welcome() {
       <Text style={estilos.label}>Senha</Text>
       <TextInput
         style={estilos.campoInput}
-        placeholder="sua senha"
+        placeholder="Digite a senha"
         secureTextEntry
         placeholderTextColor="#999"
       />
@@ -35,8 +35,8 @@ export default function Welcome() {
       </TouchableOpacity>
 
       <TouchableOpacity 
-      style={estilos.botao}
-      onPress={ () => navigation.navigate('SingIn')}
+        style={estilos.botao}
+        onPress={() => void navigate.navigate('SignIn')}
       >
         <Text style={estilos.textoBotao}>Cria conta</Text>
       </TouchableOpacity>
@@ -44,16 +44,18 @@ export default function Welcome() {
       <TouchableOpacity>
         <Text style={estilos.esqueciSenha}>Esqueceu a senha ?</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const estilos = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    padding: 30,
     backgroundColor: '#fff',
     justifyContent: 'center',
+    width: '100%',
+    display: 'flex'
   },
   titulo: {
     fontSize: 28,
@@ -81,6 +83,7 @@ const estilos = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
     color: '#000',
+    width: '100%'
   },
   botao: {
     backgroundColor: '#4B4DED',
