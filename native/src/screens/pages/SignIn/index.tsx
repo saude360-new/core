@@ -6,21 +6,45 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Pressable,
 } from 'react-native';
-
 import { Picker } from '@react-native-picker/picker';
-import { BASE_URL } from '../../../lib/http';
+import DatePicker from '@react-native-community/datetimepicker'
+import { Toast } from 'toastify-react-native';
+
 
 export default function TelaCadastro() {
   const [state, setState] = useState({
-    firstName: 'Burro' as string | null,
-    lastName: 'null' as string | null,
-    birthDate: '2008-03-31' as string | null,
+    firstName: null as string | null,
+    lastName: null as string | null,
+    birthDate: new Date(new Date().getFullYear() - 19, 1, 1),
     emailAddress: null as string | null,
-    userRole: 'caregiver' as string,
-    password: '16578950' as string | null,
+    userRole: 'patient' as string,
+    password: null as string | null,
+    passwordConfirm: null as string | null,
     gender: 'male' as string,
+    showDatePicker: false,
   });
+
+
+  function toggleDatePicker() {
+    setState(prev => ({
+      ...prev,
+      showDatePicker: !prev.showDatePicker
+    }))
+  }
+
+  function onDateChange({ type }: { type: string }, selectedDate?: Date) {
+    if (type !== 'set')
+      return toggleDatePicker()
+
+    if (selectedDate) {
+      setState(prev => ({
+        ...prev,
+        birthDate: selectedDate
+      }))
+    }
+  }
 
 
   async function userConnect() {
@@ -34,22 +58,20 @@ export default function TelaCadastro() {
       gender: state.gender,
     }; // TODO: encrypt and sign payload before send to the server
 
+    // Toast.info('sending request to backend...')
+
     try {
-      const res = await fetch('http://10.80.120.100:2602/users', {
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: JSON.stringify(payload),
-        method: 'POST',
+      const res = await fetch('https://example.com', {
+        method: 'GET',
       });
 
-      if(res.status !== 201) {
-        // TODO: show a error message to the stupid
-        throw {};
+      if (res.status !== 201) {
+        throw { cause: `Response status is not 201 [returned ${res.status}]` };
       }
 
       // TODO: redirect to somewhere
-    } catch (err: unknown) {
+    } catch (err: any) {
+      Toast.error(`Request failed due to: ${err.message || err.cause}`)
       console.log(err);
     }
   }
@@ -59,13 +81,41 @@ export default function TelaCadastro() {
     <ScrollView contentContainerStyle={estilos.container}>
       {/* Parte 1 */}
       <Text style={estilos.label}>Nome</Text>
-      <TextInput style={estilos.input} placeholder="seu nome" />
+      <TextInput
+        style={estilos.input}
+        placeholder="seu nome"
+        onChangeText={firstName => setState(prev => ({ ...prev, firstName }))}
+      />
 
       <Text style={estilos.label}>Sobrenome</Text>
-      <TextInput style={estilos.input} placeholder="seu sobrenome" />
+      <TextInput
+        style={estilos.input}
+        placeholder="seu sobrenome"
+        onChangeText={lastName => setState(prev => ({ ...prev, firstName: lastName }))}
+      />
 
       <Text style={estilos.label}>Data de Nascimento</Text>
-      <TextInput style={estilos.input} placeholder="--/--/----" />
+      <View>
+        <Pressable onPress={toggleDatePicker}>
+          <TextInput
+            style={estilos.input}
+            placeholder="15 de maio de 2005"
+            value={state.birthDate.toLocaleDateString('pt-BR')}
+            editable={false}
+            onChangeText={value => setState(prev => ({ ...prev, birthDate: new Date(value) }))}
+          />
+        </Pressable>
+        {
+          state.showDatePicker ? (
+            <DatePicker
+              value={state.birthDate}
+              mode="date"
+              display="calendar"
+              onChange={onDateChange}
+            />
+          ) : null
+        }
+      </View>
 
       <Text style={estilos.label}>Gênero</Text>
       <View style={estilos.picker}>
@@ -73,23 +123,46 @@ export default function TelaCadastro() {
           selectedValue={state.gender}
           onValueChange={gender => void setState(prev => ({ ...prev, gender }))}
         >
-          <Picker.Item label="Masculino" value="Masculino" />
-          <Picker.Item label="Feminino" value="Feminino" />
-          <Picker.Item label="Não Binário" value="Não Binário" />
+          <Picker.Item label="Masculino" value="male" />
+          <Picker.Item label="Feminino" value="female" />
         </Picker>
       </View>
 
       <Text style={estilos.label}>E-mail</Text>
-      <TextInput style={estilos.input} onChangeText={emailAddress => {
-        setState(prev => ({ ...prev, emailAddress }));
-      }} placeholder="seuemail@email.com" />
+      <TextInput
+        style={estilos.input}
+        onChangeText={emailAddress => {
+          setState(prev => ({ ...prev, emailAddress }));
+        }}
+        placeholder="seuemail@email.com"
+      />
 
       {/* Parte 2 */}
       <Text style={estilos.label}>Senha</Text>
-      <TextInput style={estilos.input} placeholder="sua senha" secureTextEntry />
+      <TextInput
+        style={estilos.input}
+        placeholder="Digite sua senha"
+        onChangeText={password => {
+          setState(prev => ({
+            ...prev,
+            password
+          }))
+        }}
+        secureTextEntry 
+      />
 
       <Text style={estilos.label}>Confirmar Senha</Text>
-      <TextInput style={estilos.input} placeholder="confirme sua senha" secureTextEntry />
+      <TextInput
+        style={estilos.input}
+        placeholder="Confirme sua senha"
+        onChangeText={passwordConfirm => {
+          setState(prev => ({
+            ...prev,
+            password: passwordConfirm
+          }))
+        }}
+        secureTextEntry
+      />
 
       <Text style={estilos.label}>Selecione sua classe</Text>
       <View style={estilos.classeContainer}>
@@ -108,7 +181,7 @@ export default function TelaCadastro() {
       </View>
 
       {/* Parte 3 (só aparece se for Cuidador) */}
-      {state.userRole === 'caregiver' && (
+      {state.userRole === 'caregiver' ? (
         <>
           <Text style={estilos.label}>Nome do Paciente</Text>
           <TextInput style={estilos.input} placeholder="nome do paciente" />
@@ -116,7 +189,7 @@ export default function TelaCadastro() {
           <Text style={estilos.label}>ID do Paciente</Text>
           <TextInput style={estilos.input} placeholder="ID do paciente" />
         </>
-      )}
+      ) : null}
 
       <TouchableOpacity style={estilos.botaoFinal} onPress={userConnect}>
         <Text style={estilos.textoBotaoFinal}>Cria conta</Text>
@@ -127,7 +200,9 @@ export default function TelaCadastro() {
 
 const estilos = StyleSheet.create({
   container: {
-    padding: 1,
+    padding: 30,
+    width: '100%',
+    display: 'flex',
     paddingBottom: 48,
     backgroundColor: '#fff',
   },

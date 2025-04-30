@@ -3,25 +3,19 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import Routes from './src/screens/routes';
 import TelaCadastro from './src/screens/pages/SignIn';
+import { NavigationContainer } from '@react-navigation/native';
+import Welcome from './src/screens/pages/Welcome';
+import Toast from 'toastify-react-native';
 
 
 const App = () => {
   return (
-    <View style={styles.container}>
-      <TelaCadastro></TelaCadastro>
-    </View>
+    <NavigationContainer>
+        <Routes />
+        <Toast />
+     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
 
 
 export default App;
