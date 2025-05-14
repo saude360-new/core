@@ -14,11 +14,13 @@ export default function Routes(){
             <Stack.Screen // cada tela
                 name="Welcome" 
                 component={Welcome} //componente que é rendenizado
+                options={{ headerShown: false }}
             />
 
             <Stack.Screen
                 name="SignIn"
                 component={SingIn}
+                options={{ headerShown: false }}
             />
         </Stack.Navigator>
     )

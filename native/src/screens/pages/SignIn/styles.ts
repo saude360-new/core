@@ -1,26 +1,47 @@
+import { StyleSheet } from 'react-native'
+
+
 const estilos = StyleSheet.create({
     container: {
-      padding: 30,
+      padding: 38,
       width: '100%',
-      paddingBottom: 48,
       backgroundColor: '#fff',
     },
+    titulo: {
+        textAlign: 'left',
+        marginBottom: 40,
+        paddingTop: 30
+    },
+    tituloNegrito: {
+        fontWeight: 'bold',
+        color: '#000',
+        fontSize: 36,
+    },
+    tituloAzul: {
+        color: '#414bb2',
+        fontWeight: 'bold',
+        fontSize: 40,
+        marginTop: -10
+    },
     label: {
-      fontSize: 16,
-      marginTop: 16,
-      marginBottom: 4,
+        fontSize: 21,
+        color: '#333',
+        marginBottom: 4,
     },
     input: {
-      borderWidth: 1,
-      borderColor: '#999',
-      borderRadius: 4,
-      padding: 12,
+        borderRadius: 16,
+        padding: 20,
+        marginBottom: 16,
+        fontSize: 16,
+        color: '#000',
+        width: '100%',
+        backgroundColor: '#efefef',
     },
     picker: {
-      borderWidth: 1,
-      borderColor: '#999',
-      borderRadius: 4,
       overflow: 'hidden',
+      marginBottom: 15,
+      borderRadius: 16,
+      backgroundColor: '#efefef'
     },
     classeContainer: {
       flexDirection: 'row',
@@ -45,6 +66,7 @@ const estilos = StyleSheet.create({
       padding: 16,
       borderRadius: 6,
       marginTop: 24,
+      marginBottom: 110
     },
     textoBotaoFinal: {
       color: '#fff',
@@ -52,6 +74,7 @@ const estilos = StyleSheet.create({
       fontWeight: 'bold',
       fontSize: 16,
     },
+    
   });
 
 
