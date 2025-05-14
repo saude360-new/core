@@ -9,9 +9,8 @@ import {
   Pressable,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import DatePicker from '@react-native-community/datetimepicker'
+import DatePicker from '@react-native-community/datetimepicker';
 import { Toast } from 'toastify-react-native';
-
 
 export default function TelaCadastro() {
   const [state, setState] = useState({
@@ -26,28 +25,30 @@ export default function TelaCadastro() {
     showDatePicker: false,
   });
 
-
   function toggleDatePicker() {
     setState(prev => ({
       ...prev,
       showDatePicker: !prev.showDatePicker
-    }))
+    }));
   }
 
   function onDateChange({ type }: { type: string }, selectedDate?: Date) {
-    if (type !== 'set')
-      return toggleDatePicker()
+    if (type !== 'set') return toggleDatePicker();
 
     if (selectedDate) {
       setState(prev => ({
         ...prev,
         birthDate: selectedDate
-      }))
+      }));
     }
   }
 
-
   async function userConnect() {
+    if (state.password !== state.passwordConfirm) {
+      Toast.error('As senhas não coincidem');
+      return;
+    }
+
     const payload = {
       firstName: state.firstName,
       lastName: state.lastName,
@@ -56,30 +57,31 @@ export default function TelaCadastro() {
       userRole: state.userRole,
       password: state.password,
       gender: state.gender,
-    }; // TODO: encrypt and sign payload before send to the server
-
-    // Toast.info('sending request to backend...')
+    };
 
     try {
-      const res = await fetch('https://example.com', {
-        method: 'GET',
+      const res = await fetch('http://192.168.3.160:2602/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
       });
 
-      if (res.status !== 201) {
-        throw { cause: `Response status is not 201 [returned ${res.status}]` };
+      if (res.ok) {
+        
+        Toast.success('Conta criada com sucesso!');
+      } else {
+        const error = await res.json();
+        Toast.error(error.message || 'Erro ao criar conta.');
       }
-
-      // TODO: redirect to somewhere
-    } catch (err: any) {
-      Toast.error(`Request failed due to: ${err.message || err.cause}`)
-      console.log(err);
+    } catch (err) {
+      Toast.error('Erro de conexão com o servidor.');
     }
   }
 
-
   return (
     <ScrollView contentContainerStyle={estilos.container}>
-      {/* Parte 1 */}
       <Text style={estilos.label}>Nome</Text>
       <TextInput
         style={estilos.input}
@@ -91,7 +93,7 @@ export default function TelaCadastro() {
       <TextInput
         style={estilos.input}
         placeholder="seu sobrenome"
-        onChangeText={lastName => setState(prev => ({ ...prev, firstName: lastName }))}
+        onChangeText={lastName => setState(prev => ({ ...prev, lastName }))}
       />
 
       <Text style={estilos.label}>Data de Nascimento</Text>
@@ -102,26 +104,23 @@ export default function TelaCadastro() {
             placeholder="15 de maio de 2005"
             value={state.birthDate.toLocaleDateString('pt-BR')}
             editable={false}
-            onChangeText={value => setState(prev => ({ ...prev, birthDate: new Date(value) }))}
           />
         </Pressable>
-        {
-          state.showDatePicker ? (
-            <DatePicker
-              value={state.birthDate}
-              mode="date"
-              display="calendar"
-              onChange={onDateChange}
-            />
-          ) : null
-        }
+        {state.showDatePicker && (
+          <DatePicker
+            value={state.birthDate}
+            mode="date"
+            display="calendar"
+            onChange={onDateChange}
+          />
+        )}
       </View>
 
       <Text style={estilos.label}>Gênero</Text>
       <View style={estilos.picker}>
         <Picker
           selectedValue={state.gender}
-          onValueChange={gender => void setState(prev => ({ ...prev, gender }))}
+          onValueChange={gender => setState(prev => ({ ...prev, gender }))}
         >
           <Picker.Item label="Masculino" value="male" />
           <Picker.Item label="Feminino" value="female" />
@@ -131,57 +130,43 @@ export default function TelaCadastro() {
       <Text style={estilos.label}>E-mail</Text>
       <TextInput
         style={estilos.input}
-        onChangeText={emailAddress => {
-          setState(prev => ({ ...prev, emailAddress }));
-        }}
         placeholder="seuemail@email.com"
+        onChangeText={emailAddress => setState(prev => ({ ...prev, emailAddress }))}
       />
 
-      {/* Parte 2 */}
       <Text style={estilos.label}>Senha</Text>
       <TextInput
         style={estilos.input}
         placeholder="Digite sua senha"
-        onChangeText={password => {
-          setState(prev => ({
-            ...prev,
-            password
-          }))
-        }}
-        secureTextEntry 
+        secureTextEntry
+        onChangeText={password => setState(prev => ({ ...prev, password }))}
       />
 
       <Text style={estilos.label}>Confirmar Senha</Text>
       <TextInput
         style={estilos.input}
         placeholder="Confirme sua senha"
-        onChangeText={passwordConfirm => {
-          setState(prev => ({
-            ...prev,
-            password: passwordConfirm
-          }))
-        }}
         secureTextEntry
+        onChangeText={passwordConfirm => setState(prev => ({ ...prev, passwordConfirm }))}
       />
 
       <Text style={estilos.label}>Selecione sua classe</Text>
       <View style={estilos.classeContainer}>
         <TouchableOpacity
           style={[estilos.botaoClasse, state.userRole === 'patient' ? estilos.classeAtiva : {}]}
-          onPress={() => void setState(prev => ({ ...prev, userRole: 'patient' }))}
+          onPress={() => setState(prev => ({ ...prev, userRole: 'patient' }))}
         >
           <Text style={estilos.textoBotaoClasse}>Paciente</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[estilos.botaoClasse, state.userRole === 'caregiver' ? estilos.classeAtiva : {}]}
-          onPress={() => void setState(prev => ({ ...prev, userRole: 'caregiver' }))}
+          onPress={() => setState(prev => ({ ...prev, userRole: 'caregiver' }))}
         >
           <Text style={estilos.textoBotaoClasse}>Cuidador</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Parte 3 (só aparece se for Cuidador) */}
-      {state.userRole === 'caregiver' ? (
+      {state.userRole === 'caregiver' && (
         <>
           <Text style={estilos.label}>Nome do Paciente</Text>
           <TextInput style={estilos.input} placeholder="nome do paciente" />
@@ -189,10 +174,10 @@ export default function TelaCadastro() {
           <Text style={estilos.label}>ID do Paciente</Text>
           <TextInput style={estilos.input} placeholder="ID do paciente" />
         </>
-      ) : null}
+      )}
 
       <TouchableOpacity style={estilos.botaoFinal} onPress={userConnect}>
-        <Text style={estilos.textoBotaoFinal}>Cria conta</Text>
+        <Text style={estilos.textoBotaoFinal}>Criar conta</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -202,7 +187,6 @@ const estilos = StyleSheet.create({
   container: {
     padding: 30,
     width: '100%',
-    display: 'flex',
     paddingBottom: 48,
     backgroundColor: '#fff',
   },
