@@ -29,6 +29,7 @@ export default function TelaCadastro() {
         password: null as string | null,
         passwordConfirm: null as string | null,
         gender: 'male' as string,
+        patientEmail: 'null' as string,
         showDatePicker: false,
         isKeyboardVisible: false,
     });
@@ -86,6 +87,7 @@ export default function TelaCadastro() {
             userRole: state.userRole,
             password: state.password,
             gender: state.gender,
+            patientEmail: state.patientEmail,
         };
 
         for (const value of Object.values(payload)) {
@@ -101,7 +103,7 @@ export default function TelaCadastro() {
         }
 
         try {
-            const res = await fetchWithTimeout('http://10.8.14.15:2602/users', {
+            const res = await fetchWithTimeout('http://192.168.3.131:2602/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -225,8 +227,10 @@ export default function TelaCadastro() {
                             <Text style={estilos.label}>Nome do Paciente</Text>
                             <TextInput style={estilos.input} placeholder="nome do paciente" />
 
-                            <Text style={estilos.label}>ID do Paciente</Text>
-                            <TextInput style={estilos.input} placeholder="ID do paciente" />
+                            <Text style={estilos.label}>Email do Paciente</Text>
+                            <TextInput style={estilos.input} placeholder="Email do paciente"
+                            onChangeText={patientEmail => setState(prev => ({ ...prev, patientEmail }))}
+                            />
                         </>
                     ) : null}
 
