@@ -1,106 +1,120 @@
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native';
+
+import estilos from './styles'
+import { Toast } from 'toastify-react-native';
+import { fetchWithTimeout } from '../../../lib/http';
 
 
 export default function Welcome() {
-    const navigate = useNavigation()
+    const navigate = useNavigation();
 
-  return (
-    <View style={estilos.container}>
-      <Text style={estilos.titulo}>
-        <Text style={estilos.tituloNegrito}>Smart </Text>
-        <Text style={estilos.tituloAzul}>HEALTH</Text>
-      </Text>
+    const [state, setState] = useState({
+        emailAddress: null as string | null,
+        password: null as string | null,
+        isKeyboardVisible: false
+    });
 
-      <Text style={estilos.label}>E-mail</Text>
-      <TextInput
-        style={estilos.campoInput}
-        placeholder="email@provider.xxx"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        placeholderTextColor="#999"
-      />
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setState(prev => ({
+                ...prev,
+                isKeyboardVisible: true
+            }))
+        });
+    
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+          setState(prev => ({
+              ...prev,
+              isKeyboardVisible: false
+          }))
+        });
+    
+        return () => {
+          keyboardDidShowListener.remove();
+          keyboardDidHideListener.remove();
+        };
+      }, []);
 
-      <Text style={estilos.label}>Senha</Text>
-      <TextInput
-        style={estilos.campoInput}
-        placeholder="Digite a senha"
-        secureTextEntry
-        placeholderTextColor="#999"
-      />
+    async function onSignIn() {
+        const payload = {
+            email: state.emailAddress,
+            password: state.password,
+        };
 
-      <TouchableOpacity style={estilos.botao}>
-        <Text style={estilos.textoBotao}>Entrar</Text>
-      </TouchableOpacity>
+        for(const value of Object.values(payload)) {
+            if(!value) {
+                Toast.warn("Um ou mais campos obrigatóris estão vazios");
+                return;
+            }
+        }
 
-      <TouchableOpacity 
-        style={estilos.botao}
-        onPress={() => void navigate.navigate('SignIn')}
-      >
-        <Text style={estilos.textoBotao}>Cria conta</Text>
-      </TouchableOpacity>
+        try {
+            const res = await fetchWithTimeout('http://192.168.3.160:2602/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch (err) {
+            Toast.error('Erro de conexão com o servidor: ' + err.message);
+        }
+    }
 
-      <TouchableOpacity>
-        <Text style={estilos.esqueciSenha}>Esqueceu a senha ?</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    return (
+        <View
+            style={{
+                ...estilos.container,
+                paddingBottom: state.isKeyboardVisible ? 150 : undefined
+            }}
+        >
+            <View style={estilos.titulo}>
+                <Text style={estilos.tituloNegrito}>Smart</Text>
+                <Text style={estilos.tituloAzul}>HEALTH</Text>
+            </View>
+
+            <View style={estilos.borderView}>
+                <Text style={estilos.label}>E-mail</Text>
+                <TextInput
+                    style={estilos.campoInput}
+                    placeholder="SmartHealth@gmail.com"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    placeholderTextColor="#a1a1a1"
+                    onChangeText={emailAddress => setState(prev => ({ ...prev, emailAddress }))}
+                />
+
+                <Text style={estilos.label}>Senha</Text>
+                <TextInput
+                    style={estilos.campoInput}
+                    placeholder="Digite a senha"
+                    placeholderTextColor="#a1a1a1"
+                    secureTextEntry
+                    onChangeText={password => setState(prev => ({ ...prev, password }))}
+                />
+
+                <TouchableOpacity
+                    style={estilos.botaoEntrar}
+                    onPress={onSignIn}
+                >
+                    <Text style={estilos.textoBotao}>Entrar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={estilos.botaoCadastrar}
+                    onPress={() => void navigate.navigate('SignIn')}
+                >
+                    <Text style={estilos.textoBotao}>Cria conta</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity>
+                    <Text style={estilos.esqueciSenha}>Esqueceu a senha ?</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
 }
 
-const estilos = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 30,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    width: '100%',
-    display: 'flex'
-  },
-  titulo: {
-    fontSize: 28,
-    marginBottom: 40,
-    textAlign: 'left',
-  },
-  tituloNegrito: {
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  tituloAzul: {
-    color: '#4B4DED',
-    fontWeight: 'bold',
-  },
-  label: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 4,
-  },
-  campoInput: {
-    borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 4,
-    padding: 12,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#000',
-    width: '100%'
-  },
-  botao: {
-    backgroundColor: '#4B4DED',
-    padding: 14,
-    borderRadius: 4,
-    marginTop: 8,
-  },
-  textoBotao: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  esqueciSenha: {
-    marginTop: 16,
-    color: '#000',
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-});
+
