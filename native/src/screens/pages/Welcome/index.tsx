@@ -39,7 +39,7 @@ export default function Welcome() {
 
     async function onSignIn() {
         const payload = {
-            email: state.emailAddress,
+            emailAddress: state.emailAddress,
             password: state.password,
         };
 
@@ -51,7 +51,7 @@ export default function Welcome() {
         }
 
         try {
-            const res = await fetchWithTimeout('http://192.168.3.160:2602/users/login', {
+            const res = await fetchWithTimeout('http://192.168.3.131:2602/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
