@@ -9,17 +9,18 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-community/datetimepicker": "8.3.0",
+    "@react-native-community/datetimepicker": "^8.3.0",
     "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
     "expo": "53.0.9",
+    "expo-blur": "~14.1.5",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
-    "toastify-react-native": "^7.2.0",
+    "toastify-react-native": "^7.2.3",
     "yarn": "^1.22.22"
   },
   "devDependencies": {

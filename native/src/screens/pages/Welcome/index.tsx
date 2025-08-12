@@ -97,7 +97,8 @@ export default function Welcome() {
 
                 <TouchableOpacity
                     style={estilos.botaoEntrar}
-                    onPress={onSignIn}
+                   /*onPress={onSignIn}*/
+                   onPress={() => void navigate.navigate('Home')}
                 >
                     <Text style={estilos.textoBotao}>Entrar</Text>
                 </TouchableOpacity>
@@ -109,7 +110,8 @@ export default function Welcome() {
                     <Text style={estilos.textoBotao}>Cria conta</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => void navigate.navigate('RecuperarSenhaOne')}>
                     <Text style={estilos.esqueciSenha}>Esqueceu a senha ?</Text>
                 </TouchableOpacity>
             </View>
