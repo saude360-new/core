@@ -3,22 +3,7 @@
   AND A FUNCIONAL FILE WITH IMPLEMENTATION ONLY (.cc)
 */
 
-#include <Arduino.h>
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
-
-
-#define G_FORCE 9.81f
-
-
-typedef struct {
-  float ax;
-  float ay;
-  float az;
-  float gx;
-  float gy;
-  float gz;
-} MPUPayload;
+#include "fall.h"
 
 
 class FallDetector {
@@ -28,30 +13,38 @@ class FallDetector {
     INACTIVITY_THRESHOLD = 20.0;
   }
 
-  bool process_sensor_data(const MPUPayload& data) const {
-    if(calculate_va(data) >= FREE_FALL_THRESHOLD) {
+  void process_sensor_data(const MPUPayload& data) const {
+    float va = calculate_va(data);
+    update_recent_data(data);
+
+    if(va < FREE_FALL_THRESHOLD) {
       in_free_fall = true;
-    } else {
+    }
+
+    if(in_free_fall && va > IMPACT_THRESHOLD) {
+      impact_occured = true;
       in_free_fall = false;
     }
 
-    if(calculate_gs(data) >= IMPACT_THRESHOLD) {
-      impact_occured = true;
-    } else {
-      impact_occured = false;
-    }
+    if(impact_occured) {
+      float sa = calculate_sa();
 
-    if(calculate_sa(data) >= INACTIVITY_THRESHOLD) {
-      if(!in_free_fall && impact_occured) {
+      if(sa < INACTIVITY_THRESHOLD) {
         fall_detected = true;
+        impact_occured = false;
       } else {
-        fall_detected = false;
+        impact_occured = false;
       }
-    } else {
+    }
+  }
+
+  bool is_fall() {
+    if(fall_detected) {
       fall_detected = false;
+      return true;
     }
 
-    return fall_detected;
+    return false;
   }
 
   private:
@@ -62,6 +55,35 @@ class FallDetector {
     bool fall_detected;
     bool in_free_fall;
     bool impact_occured;
+
+    static const int RECENT_DATA_SIZE = 50;
+    MPUPayload recent_data[RECENT_DATA_SIZE];
+
+    int d_index;
+
+    float calculate_va(const MPUPayload& data) const {
+      return sqrt(pow(data.ax, 2) + pow(data.ay, 2) + pow(data.az, 2));
+    }
+
+    float calculate_gs(const MPUPayload& data) const {
+      return sqrt(pow(data.gy, 2) + pow(data.gz, 2));
+    }
+
+    float calculate_sa() const {
+      float s = 0.0;
+
+      for(int i = 0; i < RECENT_DATA_SIZE; ++i) {
+        s += abs(recent_data[i].ax) + abs(recent_data[i].ay) + abs(recent_data[i].az);
+      }
+
+      return s;
+    }
+
+    void update_recent_data(const MPUPayload& data) {
+      recent_data[d_index] = data;
+      d_index = (d_index + 1) % RECENT_DATA_SIZE;
+    }
+};
 
     static const int RECENT_DATA_SIZE = 50;
     MPUPayload recent_data[RECENT_DATA_SIZE];
