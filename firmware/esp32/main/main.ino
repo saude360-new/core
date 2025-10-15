@@ -16,7 +16,7 @@ void loop() {
   std::vector<MPUPayload> test_seq;
 
   for(int i = 0; i < 10; ++i) {
-    test_seq.push_back({0.1, 0.1, 9.8, 0, 0, 0});
+    test_seq.push_back({0.1, 0.1, G_FORCE, 0, 0, 0});
   }
 
   test_seq.push_back({0.5, 0.3, 0.4, 0, 0, 0});
