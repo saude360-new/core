@@ -42,30 +42,51 @@ typedef struct {
 // === Classe simples para detectar quedas ===
 class FallDetector {
 public:
+  bool is_fall() {
+    return fall_detected;
+  }
+
+  bool is_possible_fall() {
+    return possible_fall;
+  }
+
   bool process_sensor_data(const MPUPayload& data) {
     // Magnitude da aceleração total (m/s² aproximado)
     float magnitude = sqrt(data.ax * data.ax + data.ay * data.ay + data.az * data.az);
+    unsigned long now = millis();
 
     // Detecta pico abrupto seguido de baixa aceleração — padrão típico de queda
-    if (magnitude > 15.0) {
-      last_peak = millis();
+    if (magnitude > 3.0) {
+      last_peak = now;
+      possible_fall = true;
     }
 
-    if (millis() - last_peak < 500 && magnitude < 3.0) {
-      if (!fall_detected) {
+    if(
+      possible_fall &&
+      (now - last_peak > 300) &&
+      (now - last_peak < 2000) &&
+      magnitude < 07
+    ) {
+      if(!fall_detected) {
         fall_detected = true;
+        possible_fall = false;
+
         return true;
       }
-    } else if (millis() - last_peak > 1000) {
-      fall_detected = false;
     }
 
+    if(now - last_peak > 3000) {
+      possible_fall = false;
+      fall_detected = false;
+    }
+      
     return false;
   }
 
 private:
   unsigned long last_peak = 0;
   bool fall_detected = false;
+  bool possible_fall = false;
 };
 
 // === Instância global ===
