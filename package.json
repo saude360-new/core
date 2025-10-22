@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@react-native-community/blur": "^4.4.1",
+    "expo": "^54.0.17"
+  }
+}
