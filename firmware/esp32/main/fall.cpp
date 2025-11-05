@@ -1,5 +1,5 @@
-#include "fall.h"
-
+#include "parts/fall.h"
+#include <math.h>
 
 FallDetector::FallDetector() : 
   fall_detected(false), 
@@ -7,9 +7,9 @@ FallDetector::FallDetector() :
   impact_occured(false), 
   d_index(0) 
 {
-  FREE_FALL_THRESHOLD = 3.5;
-  IMPACT_THRESHOLD = 25.0;
-  INACTIVITY_THRESHOLD = 20.0;
+  FREE_FALL_THRESHOLD = 0.5;
+  IMPACT_THRESHOLD = 2.5;
+  INACTIVITY_THRESHOLD = 0.2;
 }
 
 
