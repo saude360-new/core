@@ -27,10 +27,12 @@ private:
   float FREE_FALL_THRESHOLD;
   float IMPACT_THRESHOLD;
   float INACTIVITY_THRESHOLD;
+  unsigned long INACTIVITY_WINDOW_MS;
 
   bool fall_detected;
   bool in_free_fall;
   bool impact_occured;
+  unsigned long impact_timestamp;
 
   static const int RECENT_DATA_SIZE = 50;
   MPUPayload recent_data[RECENT_DATA_SIZE];
