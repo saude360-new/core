@@ -37,6 +37,8 @@ unsigned long tempoInicio = 0;
 const unsigned long intervalo = 10000; // 10 segundos
 unsigned long tempoTela = 0;
 const unsigned long intervaloTela = 5000; // 5 segundos entre telas
+unsigned long prev_ms = 0;
+const long interval = 20;
 
 // === Buffers e Variáveis ===
 uint32_t irBuffer[100];
@@ -178,36 +180,50 @@ void setup() {
 // === LOOP PRINCIPAL ===
 void loop() {
   // === Leitura MPU6050 ===
-  int16_t ax_raw, ay_raw, az_raw;
-  int16_t gx_raw, gy_raw, gz_raw;
-  mpu.getMotion6(&ax_raw, &ay_raw, &az_raw, &gx_raw, &gy_raw, &gz_raw);
+  unsigned long curr_ms = millis();
 
-  MPUPayload payload = {
-    ax_raw / 16384.0,
-    ay_raw / 16384.0,
-    az_raw / 16384.0,
-    gx_raw / 131.0,
-    gy_raw / 131.0,
-    gz_raw / 131.0
-  };
+  if(curr_ms - prev_ms >= interval) {
+    prev_ms = curr_ms;
 
-  fd.process_sensor_data(payload);
-  if (fd.is_fall()) {
-    Serial.println("⚠️ Queda detectada!");
-    sendFallJSON();
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
 
-    // === Tela vermelha por 30 segundos ===
-    tft.fillScreen(ST77XX_RED);
-    tft.setTextColor(ST77XX_BLACK);
-    tft.setTextSize(6);
-    tft.setCursor(40, 120);
-    tft.println("QUEDA");
-    unsigned long inicio = millis();
-    while (millis() - inicio < 30000) {
-      delay(100); // pequena pausa para aliviar CPU
+    MPUPayload data;
+
+    data.ax = a.acceleration.x;
+    data.ay = a.acceleration.y;
+    data.az = a.acceleration.z;
+    data.gx = g.gyro.x;
+    data.gy = g.gyro.y;
+    data.gz = g.gyro.z;
+
+    float va = fd.calculate_va(data);
+    float sa = fd.calculate_sa();
+
+    Serial.print("\nDEBUB VA: ");
+    Serial.print(va);
+    Serial.print("\t | SA: ");
+    Serial.println(sa);
+    Serial.println();
+
+    fd.process_sensor_data(data);
+    if (fd.is_fall()) {
+      Serial.println("⚠️ Queda detectada!");
+      sendFallJSON();
+  
+      // === Tela vermelha por 30 segundos ===
+      tft.fillScreen(ST77XX_RED);
+      tft.setTextColor(ST77XX_BLACK);
+      tft.setTextSize(6);
+      tft.setCursor(40, 120);
+      tft.println("QUEDA");
+      unsigned long inicio = millis();
+      while (millis() - inicio < 30000) {
+        delay(100); // pequena pausa para aliviar CPU
+      }
+  
+      mostrarTela(telaAtual);
     }
-
-    mostrarTela(telaAtual);
   }
 
   // === Leitura MAX30102 ===
