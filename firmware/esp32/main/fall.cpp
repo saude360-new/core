@@ -7,9 +7,10 @@ FallDetector::FallDetector() :
   impact_occured(false), 
   d_index(0) 
 {
-  FREE_FALL_THRESHOLD = 0.5;
-  IMPACT_THRESHOLD = 2.5;
-  INACTIVITY_THRESHOLD = 0.2;
+  FREE_FALL_THRESHOLD = 3.5;
+  IMPACT_THRESHOLD = 25.0;
+  INACTIVITY_THRESHOLD = 20.0;
+  INACTIVITY_WINDOW_MS = 2000;
 }
 
 
@@ -24,6 +25,7 @@ void FallDetector::process_sensor_data(const MPUPayload& data) {
   if(in_free_fall && va > IMPACT_THRESHOLD) {
     impact_occured = true;
     in_free_fall = false;
+    impact_timestamp = millis();
   }
 
   if(impact_occured) {
@@ -31,9 +33,12 @@ void FallDetector::process_sensor_data(const MPUPayload& data) {
 
     if(sa < INACTIVITY_THRESHOLD) {
       fall_detected = true;
+      impact_occured = false;
     }
       
-    impact_occured = false; 
+    if(millis() - impact_timestamp > INACTIVITY_WINDOW_MS) {
+      impact_occured = false;
+    }
   }
 }
 
