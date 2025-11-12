@@ -21,6 +21,9 @@ class FallDetector {
 public:
   FallDetector();
   void process_sensor_data(const MPUPayload& data);
+  float calculate_sa() const;
+  float calculate_gs(const MPUPayload& data) const;
+  float calculate_va(const MPUPayload& data) const;
   bool is_fall();
 
 private:
@@ -38,9 +41,6 @@ private:
   MPUPayload recent_data[RECENT_DATA_SIZE];
   int d_index;
 
-  float calculate_va(const MPUPayload& data) const;
-  float calculate_gs(const MPUPayload& data) const;
-  float calculate_sa() const;
   void update_recent_data(const MPUPayload& data);
 };
 
