@@ -7,9 +7,9 @@ FallDetector::FallDetector() :
   impact_occured(false), 
   d_index(0) 
 {
-  FREE_FALL_THRESHOLD = 3.5;
-  IMPACT_THRESHOLD = 25.0;
-  INACTIVITY_THRESHOLD = 20.0;
+  FREE_FALL_THRESHOLD = 0.5;
+  IMPACT_THRESHOLD = 2.5;
+  INACTIVITY_THRESHOLD = 80; // 60
   INACTIVITY_WINDOW_MS = 2000;
 }
 
@@ -18,7 +18,8 @@ void FallDetector::process_sensor_data(const MPUPayload& data) {
   float va = calculate_va(data);
   update_recent_data(data);
 
-  if(va < FREE_FALL_THRESHOLD) {
+  if(va > FREE_FALL_THRESHOLD) {
+
     in_free_fall = true;
   }
 
@@ -29,6 +30,7 @@ void FallDetector::process_sensor_data(const MPUPayload& data) {
   }
 
   if(impact_occured) {
+
     float sa = calculate_sa();
 
     if(sa < INACTIVITY_THRESHOLD) {
@@ -53,7 +55,7 @@ bool FallDetector::is_fall() {
 
 
 float FallDetector::calculate_va(const MPUPayload& data) const {
-  return sqrt(pow(data.ax, 2) + pow(data.ay, 2) + pow(data.az, 2));
+  return sqrt(pow(data.ax, 2) + pow(data.ay, 2) + pow(data.az, 2)) / G_FORCE;
 }
 
 
@@ -66,7 +68,7 @@ float FallDetector::calculate_sa() const {
   float s = 0.0;
 
   for(int i = 0; i < RECENT_DATA_SIZE; ++i) {
-    s += abs(recent_data[i].ax) + abs(recent_data[i].ay) + abs(recent_data[i].az);
+    s += (abs(recent_data[i].ax) + abs(recent_data[i].ay) + abs(recent_data[i].az)) / G_FORCE;
   }
 
   return s;
