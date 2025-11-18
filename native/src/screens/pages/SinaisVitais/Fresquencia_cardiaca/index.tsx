@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from "react-native";
 import styles from "./styles";
 import { LineChart } from "react-native-chart-kit";
+import { useNavigation } from "@react-navigation/native";
+
 
 export default function Freq_Cardiaca() {
   const [dadosBPM, setDadosBPM] = useState<number[]>([]);
   const [bpmAtual, setBpmAtual] = useState<number | null>(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,10 +79,14 @@ export default function Freq_Cardiaca() {
 
       {/* Barra inferior */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Home")}
+        >
           <Image source={require("../../../../imgs/home.png")} style={styles.bottomIcon} />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+            onPress={() => navigation.navigate("Configuracoes")}
+        >
           <Image source={require("../../../../imgs/engrenagem.png")} style={styles.bottomIcon} />
         </TouchableOpacity>
       </View>
